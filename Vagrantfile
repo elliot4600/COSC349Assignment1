@@ -6,18 +6,13 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "ubuntu/xenia64"
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
+  # All virtual machines will be run using Ubuntu as an operating system.
+  config.vm.box = "ubuntu/xenial64"
+
+  # Automatically checks for Ubuntu updates when "vagrant up" is called from terminal.
+  config.vm.box_check_update = true
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -67,4 +62,29 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
+
+
+  config.vm.define "vm1" do |vm1|
+
+    # Set the name of the server
+    bwebserver.vm.hostname = "vm1"
+
+  end
+
+  config.vm.define "vm2" do |vm2|
+
+    # Set the name of the server
+    bwebserver.vm.hostname = "vm2"
+
+  
+  end
+
+  config.vm.define "vm3" do |vm3|
+
+    # Set the name of the server
+    bwebserver.vm.hostname = "vm3"
+
+   
+  end
+
 end
