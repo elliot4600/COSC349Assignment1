@@ -1,90 +1,81 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
+# A Vagrantfile that sets up 3 VM's - two web servers and a database server.
 Vagrant.configure("2") do |config|
-
-
-  # All virtual machines will be run using Ubuntu as an operating system.
+  
+  # All servers will run Ubuntu
   config.vm.box = "ubuntu/xenial64"
-
-  # Automatically checks for Ubuntu updates when "vagrant up" is called from terminal.
+  
+  # Automatically checks for Ubuntu updates when "vagrant up" is called from terminal
   config.vm.box_check_update = true
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  # NOTE: This will enable public access to the opened port
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine and only allow access
-  # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
 
 
-  config.vm.define "vm1" do |vm1|
+  # Sets up a VM as a database server which will interact with both the public and private web servers.
+  config.vm.define "database" do |database|
 
-    # Set the name of the server
-    bwebserver.vm.hostname = "vm1"
+    # Set server name
+    database.vm.hostname = "database"
+
+    # Assign the IP for the VM on the private network
+    database.vm.network "private_network", ip: "192.168.2.13"
+
+    # Permissions to ensure this will run properly on lab computers.
+    database.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "vagrant", mount_options: ["dmode=775,fmode=777"]
+
+    database.vm.provision :shell, path: "database.sh"
 
   end
 
-  config.vm.define "vm2" do |vm2|
 
-    # Set the name of the server
-    bwebserver.vm.hostname = "vm2"
 
-  
+  # Sets up the webserver for Business' clients to access which interacts with the database.
+  config.vm.define "publicserver" do |publicserver|
+
+    # Set server name
+    publicserver.vm.hostname = "publicserver"
+    
+    # Enables port forwarding. 
+    # The host computer can connect to IPv4 Address 127.0.0.1 port 8080.
+    # Network request will reach our webserver VM's port 80.
+    publicserver.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+    # Assign the IP for the VM on the private network
+    publicserver.vm.network "private_network", ip: "192.168.2.11"
+
+    # Permissions to ensure this will run properly on lab computers.
+    publicserver.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "vagrant", mount_options: ["dmode=775,fmode=777"]
+
+    publicserver.vm.provision :shell, path: "publicserver.sh"
+
   end
 
-  config.vm.define "vm3" do |vm3|
+  # Sets up the webserver for Business to access which interacts with the database.
+  config.vm.define "privateserver" do |privateserver|
 
-    # Set the name of the server
-    bwebserver.vm.hostname = "vm3"
+    # Set server name
+    privateserver.vm.hostname = "privateserver"
 
-   
+    # Enables port forwarding. 
+    # The host computer can connect to IPv4 Address 127.0.0.1 port 8081.
+    # Network request will reach our webserver VM's port 80.
+    privateserver.vm.network "forwarded_port", guest: 80, host: 8081, host_ip: "127.0.0.1"
+
+    # Assign the IP for the VM on the private network
+    privateserver.vm.network "private_network", ip: "192.168.2.12"
+
+    # Permissions to ensure this will run properly on lab computers.
+    privateserver.vm.synced_folder ".", "/vagrant", owner: "vagrant", group: "vagrant", mount_options: ["dmode=775,fmode=777"]
+
+    
+    privateserver.vm.provision :shell, path: "privateserver.sh"
+
+
   end
+
+ 
 
 end
+
+#  LocalWords:  webserver xenial64
